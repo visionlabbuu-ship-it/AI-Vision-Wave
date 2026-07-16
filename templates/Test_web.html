@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบคัดแยกขยะรีไซเคิลอัจฉริยะ</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10b981',
+                        secondary: '#059669'
+                    },
+                    borderRadius: {
+                        'button': '8px'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <header class="bg-white border-b border-gray-200 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                    <i class="ri-recycle-line text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-900">Smart Waste Management System</h1>
+                    <p class="text-sm text-gray-600">ระบบคัดแยกขยะรีไซเคิลอัจฉริยะ</p>
+                </div>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="#" class="text-primary font-medium">แดชบอร์ด</a>
+                <a href="#" class="text-gray-600 hover:text-primary">การจัดการขยะ</a>
+                <a href="#" class="text-gray-600 hover:text-primary">รายงาน</a>
+                <a href="#" class="text-gray-600 hover:text-primary">การตั้งค่า</a>
+            </nav>
+            <div class="flex items-center space-x-4">
+                <div class="w-10 h-10 flex items-center justify-center">
+                    <i class="ri-notification-3-line text-gray-600 text-xl"></i>
+                </div>
+                <div class="w-10 h-10 flex items-center justify-center">
+                    <i class="ri-user-3-line text-gray-600 text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="px-6 py-6">
+        <div class="flex flex-wrap items-center justify-between mb-6 gap-4">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">ภาพรวมการทำงานของระบบ</h2>
+                <p id="live-clock" class="text-gray-600">กำลังโหลดเวลา...</p>
+            </div>
+            <div class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200 shadow-sm">
+                <button id="btn-today" class="px-4 py-2 text-sm bg-primary text-white rounded-button">วันนี้</button>
+                <button id="btn-yesterday" class="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-button">เมื่อวาน</button>
+                <input type="date" id="date-picker" class="px-3 py-1.5 border border-gray-300 rounded-button text-sm text-gray-700 focus:ring-primary focus:border-primary">
+                <select id="machine-picker" class="px-3 py-1.5 border border-gray-300 rounded-button text-sm text-gray-700 focus:ring-primary focus:border-primary">
+                    <option value="">ทุกเครื่อง</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center"><i class="ri-delete-bin-line text-blue-600 text-xl"></i></div>
+                    <span id="stats-title" class="text-sm text-gray-500">วันนี้</span>
+                </div>
+                <h3 id="total-detected" class="text-2xl font-bold text-gray-900 mb-1">0 ชิ้น</h3>
+                <p class="text-sm text-gray-600">ปริมาณที่ตรวจพบ</p>
+            </div>
+            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center"><i class="ri-check-line text-green-600 text-xl"></i></div>
+                    <span class="text-sm text-gray-500">คัดแยกสำเร็จ</span>
+                </div>
+                <h3 id="total-sorted" class="text-2xl font-bold text-gray-900 mb-1">0 ชิ้น</h3>
+                <p class="text-sm text-gray-600">จำนวนที่คัดแยกสำเร็จ</p>
+            </div>
+            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center"><i class="ri-recycle-line text-purple-600 text-xl"></i></div>
+                    <span class="text-sm text-gray-500">เครื่องที่กำลังทำงาน</span>
+                </div>
+                <h3 id="active-machines" class="text-2xl font-bold text-gray-900 mb-1">0 เครื่อง</h3>
+                <p class="text-sm text-gray-600">เครื่องที่ส่งสถานะ running</p>
+            </div>
+            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center"><i class="ri-speed-line text-orange-600 text-xl"></i></div>
+                    <span class="text-sm text-gray-500">อัตราคัดแยก</span>
+                </div>
+                <h3 id="sort-rate" class="text-2xl font-bold text-gray-900 mb-1">0%</h3>
+                <p class="text-sm text-gray-600">Sorted / Detected</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-6">ปริมาณขยะตามประเภทตามช่วงเวลา</h3>
+                    <div id="trendChart" style="height: 300px;"></div>
+                </div>
+            </div>
+            <div>
+                <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                    <h3 id="pie-chart-title" class="text-lg font-semibold text-gray-900 mb-6">สัดส่วนการคัดแยก (วันนี้)</h3>
+                    <div id="categoryChart" style="height: 300px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900 mb-6">สถานะเครื่องล่าสุด</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-500">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">Machine</th>
+                            <th scope="col" class="px-6 py-3">Session ID</th>
+                            <th scope="col" class="px-6 py-3">Site</th>
+                            <th scope="col" class="px-6 py-3">Active Objects</th>
+                            <th scope="col" class="px-6 py-3">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="live-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const trendChart = echarts.init(document.getElementById('trendChart'));
+        const categoryChart = echarts.init(document.getElementById('categoryChart'));
+        const statsTitle = document.getElementById('stats-title');
+        const pieChartTitle = document.getElementById('pie-chart-title');
+        const machinePicker = document.getElementById('machine-picker');
+
+        // <<< --- [THE FIX] ---
+        // ฟังก์ชันนี้จะแปลง Date object เป็น "YYYY-MM-DD" โดยใช้เวลาท้องถิ่น
+        function getLocalISODate(date) {
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // ใช้ฟังก์ชันใหม่ในการตั้งค่า selectedDate เริ่มต้น
+        let selectedDate = getLocalISODate(new Date());
+        // --- [END OF FIX] ---
+
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            document.getElementById('live-clock').textContent = `ข้อมูลการทำงานของระบบ • เวลาปัจจุบัน: ${timeString} น.`;
+        }
+
+        function updateDashboard() {
+            const machineId = machinePicker.value;
+            const machineQuery = machineId ? `&machine_id=${encodeURIComponent(machineId)}` : '';
+            fetch(`/api/data?date=${selectedDate}${machineQuery}`)
+                .then(response => response.json())
+                .then(data => {
+                    const detectedTotal = data.stats.total_detected || 0;
+                    const sortedTotal = data.stats.total_sorted || 0;
+                    const sortRate = detectedTotal > 0 ? ((sortedTotal / detectedTotal) * 100).toFixed(1) : '0.0';
+                    document.getElementById('total-detected').textContent = `${detectedTotal} ชิ้น`;
+                    document.getElementById('total-sorted').textContent = `${sortedTotal} ชิ้น`;
+                    document.getElementById('active-machines').textContent = `${data.stats.active_machines || 0} เครื่อง`;
+                    document.getElementById('sort-rate').textContent = `${sortRate}%`;
+                    
+                    const liveTableBody = document.getElementById('live-table-body');
+                    liveTableBody.innerHTML = '';
+                    if (data.machines.length > 0) {
+                        data.machines.forEach(item => {
+                            const row = `
+                                <tr class="bg-white border-b">
+                                    <td class="px-6 py-4 font-medium text-gray-900">${item.machine_name || item.machine_id}</td>
+                                    <td class="px-6 py-4">${item.session_id}</td>
+                                    <td class="px-6 py-4">${item.site_name || '-'}</td>
+                                    <td class="px-6 py-4">${item.active_objects ?? 0}</td>
+                                    <td class="px-6 py-4">${item.status || 'N/A'}</td>
+                                </tr>`;
+                            liveTableBody.innerHTML += row;
+                        });
+                    } else {
+                        liveTableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4">ไม่มีข้อมูลสถานะเครื่อง</td></tr>';
+                    }
+
+                    const currentIds = new Set(Array.from(machinePicker.options).map(option => option.value));
+                    data.machines.forEach(item => {
+                        if (item.machine_id && !currentIds.has(item.machine_id)) {
+                            const option = document.createElement('option');
+                            option.value = item.machine_id;
+                            option.textContent = item.machine_name || item.machine_id;
+                            machinePicker.appendChild(option);
+                        }
+                    });
+
+                    const categoryOption = {
+                        animation: true,
+                        animationDurationUpdate: 500,
+                        tooltip: { trigger: 'item', formatter: '{a} <br/>{b}: {c} ชิ้น ({d}%)' },
+                        legend: { orient: 'vertical', left: 10, data: data.pie_chart.data.map(d => d.name) },
+                        series: [{
+                            name: 'ประเภทขยะ', type: 'pie', radius: ['50%', '70%'], avoidLabelOverlap: false,
+                            label: { show: false }, emphasis: { label: { show: true, fontSize: '20', fontWeight: 'bold' } },
+                            labelLine: { show: false }, data: data.pie_chart.data
+                        }]
+                    };
+                    categoryChart.setOption(categoryOption);
+                    
+                    if (data.trend_chart.categories && data.trend_chart.categories.length > 0) {
+                        const trendOption = {
+                            animation: true, animationDurationUpdate: 500, tooltip: { trigger: 'axis' },
+                            legend: { data: data.trend_chart.series.map(s => s.name) },
+                            grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
+                            xAxis: { type: 'category', boundaryGap: false, data: data.trend_chart.categories },
+                            yAxis: { type: 'value' }, series: data.trend_chart.series
+                        };
+                        trendChart.setOption(trendOption);
+                    } else {
+                        trendChart.clear();
+                        trendChart.setOption({ title: { text: `ไม่มีข้อมูลในวันที่เลือก`, left: 'center', top: 'center', textStyle: { color: '#aaa', fontSize: 16 } } });
+                    }
+                })
+                .catch(error => console.error('Error fetching dashboard data:', error));
+        }
+
+        const btnToday = document.getElementById('btn-today');
+        const btnYesterday = document.getElementById('btn-yesterday');
+        const datePicker = document.getElementById('date-picker');
+
+        function setActiveButton(activeBtn) {
+            [btnToday, btnYesterday].forEach(btn => {
+                btn.classList.remove('bg-primary', 'text-white');
+                btn.classList.add('text-gray-600', 'hover:bg-gray-100');
+            });
+            if (activeBtn) {
+                activeBtn.classList.add('bg-primary', 'text-white');
+                activeBtn.classList.remove('text-gray-600', 'hover:bg-gray-100');
+            }
+        }
+
+        btnToday.addEventListener('click', () => {
+            // <<< --- [THE FIX] ---
+            selectedDate = getLocalISODate(new Date()); // ใช้ฟังก์ชันใหม่
+            // --- [END OF FIX] ---
+            datePicker.value = selectedDate;
+            setActiveButton(btnToday);
+            statsTitle.textContent = "วันนี้";
+            pieChartTitle.textContent = "สัดส่วนการคัดแยก (วันนี้)";
+            updateDashboard();
+        });
+
+        btnYesterday.addEventListener('click', () => {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            // <<< --- [THE FIX] ---
+            selectedDate = getLocalISODate(yesterday); // ใช้ฟังก์ชันใหม่
+            // --- [END OF FIX] ---
+            datePicker.value = selectedDate;
+            setActiveButton(btnYesterday);
+            statsTitle.textContent = "เมื่อวาน";
+            pieChartTitle.textContent = "สัดส่วนการคัดแยก (เมื่อวาน)";
+            updateDashboard();
+        });
+
+        datePicker.addEventListener('change', (event) => {
+            selectedDate = event.target.value;
+            setActiveButton(null);
+            // <<< --- [THE FIX] ---
+            const todayStr = getLocalISODate(new Date()); // ใช้ฟังก์ชันใหม่
+            // --- [END OF FIX] ---
+            
+            if (selectedDate === todayStr) {
+                btnToday.click();
+            } else {
+                statsTitle.textContent = `วันที่ ${selectedDate}`;
+                pieChartTitle.textContent = `สัดส่วนการคัดแยก (${selectedDate})`;
+                updateDashboard();
+            }
+        });
+
+        machinePicker.addEventListener('change', () => {
+            updateDashboard();
+        });
+
+        datePicker.value = selectedDate;
+        updateClock();
+        updateDashboard();
+        setInterval(updateClock, 1000);
+        
+        setInterval(() => {
+            // <<< --- [THE FIX] ---
+            const today = getLocalISODate(new Date()); // ใช้ฟังก์ชันใหม่
+            // --- [END OF FIX] ---
+            if (selectedDate === today) {
+                updateDashboard();
+            }
+        }, 5000);
+
+        window.addEventListener('resize', () => {
+            trendChart.resize();
+            categoryChart.resize();
+        });
+    });
+    </script>
+</body>
+</html>

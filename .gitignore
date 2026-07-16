@@ -1,0 +1,77 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Data & logs (keep these, but don't commit)
+manual_inspection_images/
+manual_inspection_logs/
+manual_inspection_dataset/
+detection_logs/
+JETSON_*_SHAP_Logs/
+recordings/
+roi_detection_results/
+roi_detection_results_test/
+Experiments_Spectum_Light/
+New_Result/
+Old/
+*.mp4
+*.avi
+*.mov
+telemetry*.csv
+object_detect_lay_timing.csv
+
+# Large model files
+*.pt
+*.engine
+*.onnx
+*.pb
+*.zip
+*.db
+*.ods
+*.xlsx
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+.DS_Store
+_tmp_ch341_build/
+
+# Keep test data references but ignore large data
+data/
+datasets/
+
+# Customer/runtime local config
+.customer-venv/
+.env.customer
