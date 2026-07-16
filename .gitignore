@@ -67,6 +67,7 @@ object_detect_lay_timing.csv
 *.bak
 .DS_Store
 _tmp_ch341_build/
+.git.backup/
 
 # Keep test data references but ignore large data
 data/
