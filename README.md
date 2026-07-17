@@ -384,6 +384,7 @@ bash -n scripts/install_customer.sh scripts/run_machine.sh scripts/run_dashboard
 
 | Document | Purpose |
 | --- | --- |
+| [docs/CUSTOMER_SIMPLE_USER_GUIDE_TH.md](docs/CUSTOMER_SIMPLE_USER_GUIDE_TH.md) | คู่มือใช้งานแบบย่อสำหรับลูกค้า เปิดโปรแกรม ใช้ UI และหยุดระบบ |
 | [docs/LINUX_MACHINE_RUNTIME_SETUP_GUIDE.md](docs/LINUX_MACHINE_RUNTIME_SETUP_GUIDE.md) | คู่มือจัดโครงสร้างไฟล์และรันโปรแกรมบน Linux/Jetson |
 | [docs/CUSTOMER_DEPLOYMENT_GUIDE.md](docs/CUSTOMER_DEPLOYMENT_GUIDE.md) | คู่มือ deployment สำหรับลูกค้า |
 | [docs/PROJECT_SUMMARY.md](docs/PROJECT_SUMMARY.md) | สรุปภาพรวมระบบและ component |
