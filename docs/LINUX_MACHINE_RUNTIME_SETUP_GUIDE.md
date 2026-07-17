@@ -8,12 +8,13 @@
 
 คู่มือนี้ครอบคลุมงานต่อไปนี้:
 
-1. จัดวางโครงสร้างไฟล์และโฟลเดอร์ของโปรแกรมให้ถูกต้อง
-2. ตรวจสอบว่าไฟล์หลักและไฟล์ประกอบอยู่ครบตามพาธที่โปรแกรมต้องใช้
-3. สร้าง `shell script` สำหรับเรียกโปรแกรมหลัก
-4. ตั้งสิทธิ์ให้สคริปต์สามารถรันได้
-5. ทดลองรันโปรแกรม
-6. บันทึกภาพหน้าจอของแต่ละขั้นตอนเพื่อนำไปอธิบายต่อในเอกสาร Word
+1. ดึงโค้ดจาก GitHub ลงเครื่อง Linux/Jetson
+2. จัดวางโครงสร้างไฟล์และโฟลเดอร์ของโปรแกรมให้ถูกต้อง
+3. ตรวจสอบว่าไฟล์หลักและไฟล์ประกอบอยู่ครบตามพาธที่โปรแกรมต้องใช้
+4. สร้าง `shell script` สำหรับเรียกโปรแกรมหลัก
+5. ตั้งสิทธิ์ให้สคริปต์สามารถรันได้
+6. ทดลองรันโปรแกรม
+7. บันทึกภาพหน้าจอของแต่ละขั้นตอนเพื่อนำไปอธิบายต่อในเอกสาร Word
 
 ---
 
@@ -22,7 +23,7 @@
 ให้จัดวางโครงสร้างโปรแกรมในเครื่อง Linux/Jetson ตามตัวอย่างด้านล่าง
 
 ```text
-Spectrum_pipeline/
+AI-Vision-Wave/
 ├── index.py
 ├── calibration_data.json
 ├── offsets.json
@@ -74,17 +75,78 @@ Spectrum_pipeline/
 
 ---
 
-## 3. รายการไฟล์สำคัญที่ต้องมี
+## 3. การดึงโค้ดจาก GitHub
+
+สำหรับเครื่องลูกค้า แนะนำให้ติดตั้งโปรแกรมโดย clone จาก GitHub โดยตรง เพื่อให้โครงสร้างไฟล์ถูกต้องตั้งแต่ต้น
+
+Repository:
+
+```text
+https://github.com/visionlabbuu-ship-it/AI-Vision-Wave.git
+```
+
+### 3.1 Clone ครั้งแรก
+
+เลือก path ที่ต้องการติดตั้ง เช่น `/home/lab`
+
+```bash
+cd /home/lab
+git clone https://github.com/visionlabbuu-ship-it/AI-Vision-Wave.git
+cd AI-Vision-Wave
+pwd
+```
+
+สิ่งที่ควรเห็น:
+
+- มีโฟลเดอร์ `/home/lab/AI-Vision-Wave`
+- คำสั่ง `pwd` แสดง path ของ repo ที่ clone มา
+
+### 3.2 ตรวจสอบ remote และ branch
+
+```bash
+git remote -v
+git branch
+git status
+```
+
+สิ่งที่ควรเห็น:
+
+- `origin` ชี้ไปที่ `https://github.com/visionlabbuu-ship-it/AI-Vision-Wave.git`
+- branch หลักเป็น `main`
+- ถ้าเพิ่ง clone ใหม่ ควรขึ้นว่า working tree clean
+
+### 3.3 อัปเดตโค้ดจาก GitHub
+
+เมื่อมีการอัปเดตเวอร์ชันใหม่ ให้หยุดโปรแกรมก่อน แล้วรัน:
+
+```bash
+cd /home/lab/AI-Vision-Wave
+git pull origin main
+```
+
+หมายเหตุ:
+
+- ห้ามแก้ไฟล์ source โดยตรงบนเครื่องลูกค้าหากไม่จำเป็น เพราะอาจทำให้ `git pull` ชน conflict
+- ค่าที่ต่างกันในแต่ละเครื่องให้เก็บใน `.env.customer`
+- ไฟล์ `.env.customer` ไม่ถูก commit ขึ้น GitHub และไม่ควรถูกแชร์พร้อม secret จริง
+
+ภาพประกอบที่ควรบันทึก:
+
+`![ภาพขั้นตอนที่ 2 - clone โค้ดจาก GitHub](images/step02-github-clone.png)`
+
+---
+
+## 4. รายการไฟล์สำคัญที่ต้องมี
 
 ตรวจสอบว่าไฟล์สำคัญต่อไปนี้อยู่ครบก่อนเริ่มรันโปรแกรม
 
-### 3.1 ไฟล์หลัก
+### 4.1 ไฟล์หลัก
 
 - `index.py`
 - `modules/`
 - `templates/Test_web.html`
 
-### 3.2 ไฟล์ model และ config
+### 4.2 ไฟล์ model และ config
 
 - `yolov26s_fixed.pt`
 - `calibration_data.json`
@@ -94,7 +156,7 @@ Spectrum_pipeline/
 - `Model/scaler.joblib`
 - `Model/label_encoder.joblib`
 
-### 3.3 ไฟล์สคริปต์
+### 4.3 ไฟล์สคริปต์
 
 - `scripts/run_machine.sh`
 - `scripts/run_dashboard.sh`
@@ -103,7 +165,7 @@ Spectrum_pipeline/
 ใช้คำสั่งนี้เพื่อตรวจสอบเบื้องต้น:
 
 ```bash
-cd /path/to/Spectrum_pipeline
+cd /home/lab/AI-Vision-Wave
 ls
 ls modules
 ls Model
@@ -118,22 +180,22 @@ ls scripts
 
 ภาพประกอบที่ควรบันทึก:
 
-`![ภาพขั้นตอนที่ 2 - ตรวจสอบไฟล์สำคัญ](images/step02-check-required-files.png)`
+`![ภาพขั้นตอนที่ 3 - ตรวจสอบไฟล์สำคัญ](images/step03-check-required-files.png)`
 
 ---
 
-## 4. ตัวอย่าง path ที่แนะนำสำหรับติดตั้ง
+## 5. ตัวอย่าง path ที่แนะนำสำหรับติดตั้ง
 
 แนะนำให้เก็บโปรแกรมไว้ใน path ที่สั้นและชัดเจน เช่น
 
 ```bash
-/home/lab/Spectrum_pipeline
+/home/lab/AI-Vision-Wave
 ```
 
 หรือ
 
 ```bash
-/opt/Spectrum_pipeline
+/opt/AI-Vision-Wave
 ```
 
 ไม่แนะนำ:
@@ -145,8 +207,8 @@ ls scripts
 ตัวอย่างการย้ายโฟลเดอร์:
 
 ```bash
-mv Spectrum_pipeline /home/lab/Spectrum_pipeline
-cd /home/lab/Spectrum_pipeline
+mv AI-Vision-Wave /home/lab/AI-Vision-Wave
+cd /home/lab/AI-Vision-Wave
 pwd
 ```
 
@@ -156,23 +218,23 @@ pwd
 
 ภาพประกอบที่ควรบันทึก:
 
-`![ภาพขั้นตอนที่ 3 - ตำแหน่งติดตั้งโปรแกรม](images/step03-install-path.png)`
+`![ภาพขั้นตอนที่ 4 - ตำแหน่งติดตั้งโปรแกรม](images/step04-install-path.png)`
 
 ---
 
-## 5. ขั้นตอนสร้าง shell script สำหรับเรียกไฟล์หลัก
+## 6. ขั้นตอนสร้าง shell script สำหรับเรียกไฟล์หลัก
 
 ถ้าต้องการอธิบายวิธีสร้างสคริปต์ด้วยตนเอง สามารถใช้ตัวอย่างด้านล่าง
 
-### 5.1 สร้างไฟล์สคริปต์
+### 6.1 สร้างไฟล์สคริปต์
 
 ```bash
-cd /home/lab/Spectrum_pipeline
+cd /home/lab/AI-Vision-Wave
 mkdir -p scripts
 nano scripts/run_machine.sh
 ```
 
-### 5.2 วางโค้ดต่อไปนี้ลงในไฟล์
+### 6.2 วางโค้ดต่อไปนี้ลงในไฟล์
 
 ```bash
 #!/usr/bin/env bash
@@ -207,16 +269,16 @@ exec "$PYTHON_CMD" index.py
 
 ภาพประกอบที่ควรบันทึก:
 
-`![ภาพขั้นตอนที่ 4 - สร้างไฟล์ run_machine.sh](images/step04-create-run-machine-script.png)`
+`![ภาพขั้นตอนที่ 5 - สร้างไฟล์ run_machine.sh](images/step05-create-run-machine-script.png)`
 
 ---
 
-## 6. ตั้งสิทธิ์ให้ shell script รันได้
+## 7. ตั้งสิทธิ์ให้ shell script รันได้
 
 หลังจากบันทึกไฟล์แล้ว ให้ตั้งสิทธิ์ executable
 
 ```bash
-cd /home/lab/Spectrum_pipeline
+cd /home/lab/AI-Vision-Wave
 chmod +x scripts/run_machine.sh
 ls -l scripts/run_machine.sh
 ```
@@ -227,16 +289,16 @@ ls -l scripts/run_machine.sh
 
 ภาพประกอบที่ควรบันทึก:
 
-`![ภาพขั้นตอนที่ 5 - ตั้งสิทธิ์ executable](images/step05-chmod-script.png)`
+`![ภาพขั้นตอนที่ 6 - ตั้งสิทธิ์ executable](images/step06-chmod-script.png)`
 
 ---
 
-## 7. ทดลองรันโปรแกรมหลัก
+## 8. ทดลองรันโปรแกรมหลัก
 
 ใช้คำสั่ง:
 
 ```bash
-cd /home/lab/Spectrum_pipeline
+cd /home/lab/AI-Vision-Wave
 ./scripts/run_machine.sh
 ```
 
@@ -254,16 +316,16 @@ which python3
 
 ภาพประกอบที่ควรบันทึก:
 
-`![ภาพขั้นตอนที่ 6 - เรียกโปรแกรมด้วย shell script](images/step06-run-machine-script.png)`
+`![ภาพขั้นตอนที่ 7 - เรียกโปรแกรมด้วย shell script](images/step07-run-machine-script.png)`
 
 ---
 
-## 8. การเตรียมไฟล์ `.env.customer`
+## 9. การเตรียมไฟล์ `.env.customer`
 
 ถ้าต้องการกำหนด Python path หรือค่าที่เกี่ยวข้องกับการ sync/dashboard ให้สร้างไฟล์ `.env.customer`
 
 ```bash
-cd /home/lab/Spectrum_pipeline
+cd /home/lab/AI-Vision-Wave
 cp .env.customer.example .env.customer
 nano .env.customer
 ```
@@ -271,7 +333,7 @@ nano .env.customer
 ตัวอย่างค่าที่สำคัญ:
 
 ```bash
-MACHINE_PYTHON=/home/lab/Spectrum_pipeline/Orin_venv/bin/python
+MACHINE_PYTHON=/home/lab/AI-Vision-Wave/Orin_venv/bin/python
 DASHBOARD_URL=http://192.168.1.10:5000
 DASHBOARD_API_KEY=strong-secret
 MACHINE_ID=SORTER-01
@@ -290,11 +352,11 @@ SYNC_INTERVAL_SECONDS=60
 
 ภาพประกอบที่ควรบันทึก:
 
-`![ภาพขั้นตอนที่ 7 - แก้ไขไฟล์ .env.customer](images/step07-edit-env-customer.png)`
+`![ภาพขั้นตอนที่ 8 - แก้ไขไฟล์ .env.customer](images/step08-edit-env-customer.png)`
 
 ---
 
-## 9. Checklist ก่อนเริ่มใช้งานจริง
+## 10. Checklist ก่อนเริ่มใช้งานจริง
 
 ให้ตรวจสอบรายการต่อไปนี้ทุกครั้งก่อนรัน
 
@@ -311,13 +373,13 @@ SYNC_INTERVAL_SECONDS=60
 
 ภาพประกอบที่ควรบันทึก:
 
-`![ภาพขั้นตอนที่ 8 - Checklist ก่อนรัน](images/step08-preflight-checklist.png)`
+`![ภาพขั้นตอนที่ 9 - Checklist ก่อนรัน](images/step09-preflight-checklist.png)`
 
 ---
 
-## 10. ปัญหาที่พบบ่อยและแนวทางตรวจสอบ
+## 11. ปัญหาที่พบบ่อยและแนวทางตรวจสอบ
 
-### 10.1 รันแล้วขึ้นว่าไม่พบ `index.py`
+### 11.1 รันแล้วขึ้นว่าไม่พบ `index.py`
 
 สาเหตุ:
 
@@ -327,12 +389,12 @@ SYNC_INTERVAL_SECONDS=60
 ตรวจสอบ:
 
 ```bash
-cd /home/lab/Spectrum_pipeline
+cd /home/lab/AI-Vision-Wave
 ls index.py
 pwd
 ```
 
-### 10.2 รันแล้วไม่พบ model
+### 11.2 รันแล้วไม่พบ model
 
 สาเหตุ:
 
@@ -342,10 +404,10 @@ pwd
 ตรวจสอบ:
 
 ```bash
-ls /home/lab/Spectrum_pipeline/yolov26s_fixed.pt
+ls /home/lab/AI-Vision-Wave/yolov26s_fixed.pt
 ```
 
-### 10.3 รันแล้วไม่พบไฟล์ใน `Model/`
+### 11.3 รันแล้วไม่พบไฟล์ใน `Model/`
 
 สาเหตุ:
 
@@ -355,10 +417,10 @@ ls /home/lab/Spectrum_pipeline/yolov26s_fixed.pt
 ตรวจสอบ:
 
 ```bash
-ls /home/lab/Spectrum_pipeline/Model
+ls /home/lab/AI-Vision-Wave/Model
 ```
 
-### 10.4 รัน script ไม่ได้
+### 11.4 รัน script ไม่ได้
 
 สาเหตุ:
 
@@ -371,7 +433,7 @@ ls -l scripts/run_machine.sh
 chmod +x scripts/run_machine.sh
 ```
 
-### 10.5 ใช้ Python ผิดตัว
+### 11.5 ใช้ Python ผิดตัว
 
 ตรวจสอบ:
 
@@ -382,11 +444,11 @@ cat .env.customer
 
 ภาพประกอบที่ควรบันทึก:
 
-`![ภาพขั้นตอนที่ 9 - แก้ปัญหาที่พบบ่อย](images/step09-troubleshooting.png)`
+`![ภาพขั้นตอนที่ 10 - แก้ปัญหาที่พบบ่อย](images/step10-troubleshooting.png)`
 
 ---
 
-## 11. รายการภาพที่ควรเตรียมเพื่อแปลงเป็น Word
+## 12. รายการภาพที่ควรเตรียมเพื่อแปลงเป็น Word
 
 แนะนำให้สร้างโฟลเดอร์สำหรับเก็บภาพประกอบ เช่น
 
@@ -397,17 +459,18 @@ mkdir -p docs/images
 รายการภาพที่ควรเตรียม:
 
 1. ภาพโครงสร้างโฟลเดอร์หลัก
-2. ภาพตรวจสอบไฟล์สำคัญ
-3. ภาพ path ติดตั้งโปรแกรม
-4. ภาพหน้าจอขณะสร้าง `run_machine.sh`
-5. ภาพหน้าจอหลัง `chmod +x`
-6. ภาพหน้าจอขณะรัน `./scripts/run_machine.sh`
-7. ภาพหน้าจอการแก้ไข `.env.customer`
-8. ภาพ checklist ก่อนรัน
-9. ภาพตัวอย่าง troubleshooting
+2. ภาพ clone โค้ดจาก GitHub
+3. ภาพตรวจสอบไฟล์สำคัญ
+4. ภาพ path ติดตั้งโปรแกรม
+5. ภาพหน้าจอขณะสร้าง `run_machine.sh`
+6. ภาพหน้าจอหลัง `chmod +x`
+7. ภาพหน้าจอขณะรัน `./scripts/run_machine.sh`
+8. ภาพหน้าจอการแก้ไข `.env.customer`
+9. ภาพ checklist ก่อนรัน
+10. ภาพตัวอย่าง troubleshooting
 
 ---
 
-## 12. สรุป
+## 13. สรุป
 
-ถ้าผู้ใช้งานจัดวางโครงสร้างโฟลเดอร์ถูกต้อง สร้าง `shell script` ถูกต้อง และตั้ง path ของ Python กับ model ครบ ระบบจะสามารถเรียก `index.py` ผ่าน `run_machine.sh` ได้โดยสะดวก และสามารถนำภาพหน้าจอในแต่ละขั้นตอนจากคู่มือนี้ไปจัดทำเป็นเอกสาร Word ได้ต่อทันที
+ถ้าผู้ใช้งาน clone โค้ดจาก GitHub ถูกต้อง จัดวางโครงสร้างโฟลเดอร์ถูกต้อง สร้าง `shell script` ถูกต้อง และตั้ง path ของ Python กับ model ครบ ระบบจะสามารถเรียก `index.py` ผ่าน `run_machine.sh` ได้โดยสะดวก และสามารถนำภาพหน้าจอในแต่ละขั้นตอนจากคู่มือนี้ไปจัดทำเป็นเอกสาร Word ได้ต่อทันที
